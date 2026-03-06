@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InvisiKeys – Air Piano</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --sky: #e8f4fd;
+            --mint: #d4f5e9;
+            --peach: #ffe8d6;
+            --lavender: #ede7f6;
+            --gold: #ffd54f;
+            --coral: #ff7043;
+            --teal: #26c6da;
+            --violet: #7c4dff;
+            --white: #ffffff;
+            --soft-gray: #f0f4f8;
+            --text-dark: #1a1a2e;
+            --text-mid: #4a5568;
+            --shadow: 0 8px 32px rgba(124, 77, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: linear-gradient(135deg, #e8f4fd 0%, #ede7f6 40%, #ffe8d6 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            border-bottom: 2px solid rgba(124, 77, 255, 0.15);
+            padding: 14px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, var(--violet), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo span {
+            color: var(--coral);
+            -webkit-text-fill-color: var(--coral);
+        }
+
+        .tagline {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-mid);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ── HERO ── */
+        .hero-section {
+            padding: 48px 0 24px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            background: linear-gradient(135deg, var(--violet) 0%, var(--coral) 60%, var(--teal) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .hero-sub {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-mid);
+            max-width: 480px;
+            margin: 0 auto 28px;
+            line-height: 1.7;
+        }
+
+        /* ── CAMERA CARD ── */
+        .camera-card {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            border: 2px solid rgba(124, 77, 255, 0.18);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .camera-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 260px;
+        }
+
+        #videoEl {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            display: block;
+            border-radius: 0;
+        }
+
+        #overlayCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            transform: scaleX(-1);
+        }
+
+        /* ── SPLASH / PERMISSION ── */
+        #splash {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(124, 77, 255, 0.92), rgba(38, 198, 218, 0.85));
+            z-index: 10;
+            border-radius: 0;
+            padding: 24px;
+            text-align: center;
+            gap: 18px;
+        }
+
+        .splash-icon {
+            font-size: 4rem;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .splash-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .splash-text {
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.85rem;
+            font-family: 'Space Mono', monospace;
+            max-width: 320px;
+            line-height: 1.6;
+        }
+
+        .btn-start {
+            background: white;
+            color: var(--violet);
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 32px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s;
+            font-family: 'Syne', sans-serif;
+        }
+
+        .btn-start:hover {
+            transform: scale(1.05);
+        }
+
+        /* ── STATUS BAR ── */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.6);
+            border-top: 1px solid rgba(124, 77, 255, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+
+        .status-dot.active {
+            background: #4caf50;
+            box-shadow: 0 0 8px #4caf50;
+        }
+
+        .status-dot.detecting {
+            background: var(--teal);
+            box-shadow: 0 0 8px var(--teal);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.4
+            }
+        }
+
+        .status-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-mid);
+            flex: 1;
+        }
+
+        .finger-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .badge-finger {
+            background: rgba(124, 77, 255, 0.12);
+            color: var(--violet);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 0.68rem;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            border: 1.5px solid rgba(124, 77, 255, 0.3);
+        }
+
+        /* ── PIANO DISPLAY ── */
+        .piano-section {
+            padding: 16px 0;
+        }
+
+        .piano-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-mid);
+            margin-bottom: 10px;
+            padding: 0 4px;
+        }
+
+        .piano-container {
+            position: relative;
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .piano-keys {
+            display: flex;
+            position: relative;
+            height: 120px;
+            min-width: 600px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 0 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 2px solid rgba(124, 77, 255, 0.12);
+            gap: 2px;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .key {
+            border-radius: 0 0 10px 10px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.05s;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 6px;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        .key.white {
+            background: linear-gradient(180deg, #fff 0%, #f5f5f5 100%);
+            border: 1.5px solid rgba(0, 0, 0, 0.12);
+            width: 42px;
+            height: 110px;
+            z-index: 1;
+        }
+
+        .key.black {
+            background: linear-gradient(180deg, #333 0%, #111 100%);
+            width: 28px;
+            height: 72px;
+            z-index: 2;
+            margin: 0 -14px;
+            border-radius: 0 0 6px 6px;
+            border: none;
+        }
+
+        .key.white.active {
+            background: linear-gradient(180deg, var(--gold) 0%, #ffb300 100%);
+            box-shadow: 0 0 16px rgba(255, 213, 79, 0.7), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            transform: scaleY(0.97) translateY(2px);
+        }
+
+        .key.black.active {
+            background: linear-gradient(180deg, var(--coral) 0%, #bf360c 100%);
+            box-shadow: 0 0 16px rgba(255, 112, 67, 0.7);
+            transform: scaleY(0.97) translateY(2px);
+        }
+
+        .key-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(0, 0, 0, 0.35);
+            pointer-events: none;
+        }
+
+        .key.black .key-label {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* ── CONTROLS ROW ── */
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .ctrl-btn {
+            border: 2px solid rgba(124, 77, 255, 0.3);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--violet);
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            padding: 7px 18px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .ctrl-btn:hover,
+        .ctrl-btn.active {
+            background: var(--violet);
+            color: white;
+            box-shadow: 0 4px 14px rgba(124, 77, 255, 0.35);
+        }
+
+        .volume-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-mid);
+        }
+
+        #volumeSlider {
+            accent-color: var(--violet);
+            width: 90px;
+        }
+
+        .octave-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-mid);
+        }
+
+        .oct-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid rgba(124, 77, 255, 0.3);
+            background: white;
+            color: var(--violet);
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .oct-btn:hover {
+            background: var(--violet);
+            color: white;
+        }
+
+        #octaveDisplay {
+            font-weight: 700;
+            color: var(--violet);
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* ── INFO PANELS ── */
+        .info-card {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 20px 22px;
+            border: 1.5px solid rgba(124, 77, 255, 0.13);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .info-card h5 {
+            font-weight: 800;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, var(--violet), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-list li {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            font-size: 0.8rem;
+            color: var(--text-mid);
+            margin-bottom: 10px;
+            font-family: 'Space Mono', monospace;
+            line-height: 1.5;
+        }
+
+        .step-num {
+            background: linear-gradient(135deg, var(--violet), var(--teal));
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ── PHONE GUIDE ── */
+        .phone-card {
+            background: linear-gradient(135deg, rgba(255, 232, 214, 0.9), rgba(237, 231, 246, 0.9));
+            border-radius: 20px;
+            padding: 20px 22px;
+            border: 1.5px solid rgba(255, 112, 67, 0.2);
+        }
+
+        .phone-card h5 {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--coral);
+            margin-bottom: 10px;
+        }
+
+        .method-badge {
+            display: inline-block;
+            background: var(--coral);
+            color: white;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 0.72rem;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .phone-card p,
+        .phone-card li {
+            font-size: 0.78rem;
+            color: var(--text-mid);
+            font-family: 'Space Mono', monospace;
+            line-height: 1.7;
+        }
+
+        .phone-card ol {
+            padding-left: 18px;
+        }
+
+        /* ── ACTIVE NOTE DISPLAY ── */
+        .note-display {
+            text-align: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            margin-bottom: 12px;
+            border: 1.5px solid rgba(124, 77, 255, 0.12);
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #currentNoteLabel {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--violet), var(--coral));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            min-height: 2.5rem;
+            display: block;
+            transition: all 0.1s;
+        }
+
+        #handCountLabel {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text-mid);
+        }
+
+        /* ── FOOTER ── */
+        .site-footer {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(124, 77, 255, 0.1);
+            padding: 16px 0;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .site-footer p {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-mid);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 576px) {
+            .piano-keys {
+                height: 90px;
+                min-width: 460px;
+            }
+
+            .key.white {
+                width: 32px;
+                height: 82px;
+            }
+
+            .key.black {
+                width: 22px;
+                height: 56px;
+                margin: 0 -11px;
+            }
+
+            .controls-row {
+                gap: 7px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="site-header">
+        <div class="container">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div>
+                    <div class="logo">Invisi<span>Keys</span></div>
+                    <div class="tagline">Air Finger Piano</div>
+                </div>
+                <div class="ms-auto d-flex gap-2 align-items-center">
+                    <span id="fpsLabel" class="badge bg-light text-secondary"
+                        style="font-family:'Space Mono',monospace;font-size:0.65rem;"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main>
+        <div class="container py-3">
+
+            <!-- HERO -->
+            <section class="hero-section">
+                <h1 class="hero-title">Play Piano in Thin Air</h1>
+                <p class="hero-sub">No keyboard needed. Just hover your fingers above any surface — the camera detects
+                    each fingertip and plays the note instantly.</p>
+            </section>
+
+            <div class="row g-4">
+
+                <!-- LEFT: CAMERA + PIANO -->
+                <div class="col-lg-7">
+
+                    <!-- CAMERA CARD -->
+                    <div class="camera-card mb-3">
+                        <div class="camera-wrapper">
+                            <video id="videoEl" autoplay playsinline muted></video>
+                            <canvas id="overlayCanvas"></canvas>
+                            <div id="splash">
+                                <div class="splash-icon">🎹</div>
+                                <div class="splash-title">InvisiKeys Air Piano</div>
+                                <div class="splash-text">Allow camera access to detect your fingers and play notes in
+                                    the air above any surface.</div>
+                                <button class="btn-start" onclick="startCamera()">📷 Enable Camera</button>
+                            </div>
+                        </div>
+                        <div class="status-bar">
+                            <div class="status-dot" id="statusDot"></div>
+                            <span class="status-text" id="statusText">Waiting for camera…</span>
+                            <div class="finger-badges" id="fingerBadges"></div>
+                        </div>
+                    </div>
+
+                    <!-- NOTE DISPLAY -->
+                    <div class="note-display">
+                        <span id="currentNoteLabel">–</span>
+                        <span id="handCountLabel">No hands detected</span>
+                    </div>
+
+                    <!-- CONTROLS -->
+                    <div class="controls-row">
+                        <div class="octave-wrap">
+                            <span>OCT</span>
+                            <button class="oct-btn" onclick="changeOctave(-1)">−</button>
+                            <span id="octaveDisplay">4</span>
+                            <button class="oct-btn" onclick="changeOctave(1)">+</button>
+                        </div>
+                        <div class="volume-wrap">
+                            🔊 <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.7"
+                                oninput="setVolume(this.value)">
+                        </div>
+                        <button class="ctrl-btn" id="sustainBtn" onclick="toggleSustain()">Sustain OFF</button>
+                        <button class="ctrl-btn" id="soundBtn" onclick="cycleSoundType()">🎹 Piano</button>
+                    </div>
+
+                    <!-- PIANO KEYS -->
+                    <div class="piano-section">
+                        <div class="piano-label">Virtual Keyboard — Hover fingers above surface to play</div>
+                        <div class="piano-container">
+                            <div class="piano-keys" id="pianoKeys"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT: INFO -->
+                <div class="col-lg-5 d-flex flex-column gap-3">
+
+                    <!-- HOW TO PLAY -->
+                    <div class="info-card">
+                        <h5>🖐 How to Play</h5>
+                        <ul class="step-list">
+                            <li><span class="step-num">1</span>Click <strong>Enable Camera</strong> and allow browser
+                                access.</li>
+                            <li><span class="step-num">2</span>Place your hand(s) in view of the camera — above a table
+                                or flat surface.</li>
+                            <li><span class="step-num">3</span>Each <strong>fingertip detected</strong> maps to a piano
+                                key left-to-right across the frame.</li>
+                            <li><span class="step-num">4</span>Tap or lower a finger toward the surface — when a
+                                fingertip reaches the lower zone, the note plays.</li>
+                            <li><span class="step-num">5</span>Use Octave +/− to shift keys. Adjust volume freely.</li>
+                        </ul>
+                    </div>
+
+                    <!-- FINGER MAP -->
+                    <div class="info-card">
+                        <h5>🎵 Finger → Note Mapping</h5>
+                        <div class="row g-2" id="fingerMapDisplay"></div>
+                    </div>
+
+                    <!-- PHONE GUIDE -->
+                    <div class="phone-card">
+                        <h5>📱 Use Your Phone as Camera</h5>
+                        <p>Since your PC doesn't have a camera, here are 3 easy ways to use your phone camera in the
+                            browser:</p>
+                        <br>
+
+                        <div class="method-badge">Method 1 — Same WiFi (Easiest)</div>
+                        <ol>
+                            <li>Install <strong>DroidCam</strong> (Android) or <strong>EpocCam</strong> (iPhone) on your
+                                phone.</li>
+                            <li>Install the matching PC client/driver on your computer.</li>
+                            <li>Connect both to the same WiFi — your phone camera appears as a webcam in the browser.
+                            </li>
+                        </ol>
+                        <br>
+
+                        <div class="method-badge">Method 2 — USB Cable</div>
+                        <ol>
+                            <li>Use <strong>DroidCam</strong> with USB tethering (Android) or <strong>EpocCam</strong>
+                                with USB (iPhone).</li>
+                            <li>No WiFi needed — very low latency.</li>
+                        </ol>
+                        <br>
+
+                        <div class="method-badge">Method 3 — Open on Phone Directly</div>
+                        <p>Open this HTML file directly on your phone browser. Your phone's front camera will work
+                            instantly — no setup needed!</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>InvisiKeys · Powered by MediaPipe Hands · Web Audio API · Works on any device with a camera</p>
+        </div>
+    </footer>
+
+    <!-- MEDIAPIPE -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        //  PIANO CONFIG
+        // ═══════════════════════════════════════════════════════════
+        let octave = 4;
+        let volume = 0.7;
+        let sustainMode = false;
+        let soundType = 'piano'; // piano | bell | synth
+        let audioCtx = null;
+
+        const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const WHITE_NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+        const BLACK_NOTES = ['C#', 'D#', 'F#', 'G#', 'A#'];
+
+        // Build 2 octaves of keys: octave and octave+1
+        function buildKeyList(oct) {
+            const keys = [];
+            for (let o = oct; o <= oct + 1; o++) {
+                for (const n of NOTE_NAMES) {
+                    keys.push({ name: n, octave: o, id: `${n}${o}` });
+                }
+            }
+            return keys;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        //  PIANO RENDERING
+        // ═══════════════════════════════════════════════════════════
+        const pianoKeysEl = document.getElementById('pianoKeys');
+        const fingerMapEl = document.getElementById('fingerMapDisplay');
+
+        function renderPiano() {
+            pianoKeysEl.innerHTML = '';
+            const keys = buildKeyList(octave);
+            // Only white keys shown in row, black keys overlaid by z-index
+            // Use flexbox approach: white keys in order, black keys positioned
+            const whiteKeys = keys.filter(k => !k.name.includes('#'));
+
+            // Create a relative container
+            pianoKeysEl.style.position = 'relative';
+
+            // White keys
+            whiteKeys.forEach((k, i) => {
+                const el = document.createElement('div');
+                el.className = 'key white';
+                el.id = 'key_' + k.id;
+                el.dataset.note = k.id;
+                el.innerHTML = `<span class="key-label">${k.name}${k.octave}</span>`;
+                el.addEventListener('mousedown', () => triggerNote(k.id));
+                el.addEventListener('touchstart', (e) => { e.preventDefault(); triggerNote(k.id); });
+                pianoKeysEl.appendChild(el);
+            });
+
+            // Black keys overlaid
+            // positions relative to white key groups
+            const blackPositions = {
+                'C#': 0, 'D#': 1, 'F#': 3, 'G#': 4, 'A#': 5
+            };
+            // Calculate white key width dynamically after render
+            setTimeout(() => {
+                const whiteEls = pianoKeysEl.querySelectorAll('.key.white');
+                if (!whiteEls.length) return;
+                const ww = whiteEls[0].offsetWidth + 2; // +gap
+                const blackKeys = keys.filter(k => k.name.includes('#'));
+                blackKeys.forEach(k => {
+                    const existing = document.getElementById('key_' + k.id);
+                    if (existing) { existing.remove(); }
+                    const el = document.createElement('div');
+                    el.className = 'key black';
+                    el.id = 'key_' + k.id;
+                    el.dataset.note = k.id;
+                    el.style.position = 'absolute';
+                    // Find which white key index this black key falls after
+                    const allWhite = [...pianoKeysEl.querySelectorAll('.key.white')];
+                    // Find the white key before this black key
+                    const noteIdx = NOTE_NAMES.indexOf(k.name);
+                    const prevWhiteName = NOTE_NAMES[noteIdx - 1];
+                    const prevWhiteEl = allWhite.find(w => w.dataset.note === `${prevWhiteName}${k.octave}`);
+                    if (prevWhiteEl) {
+                        const left = prevWhiteEl.offsetLeft + prevWhiteEl.offsetWidth - 14;
+                        el.style.left = left + 'px';
+                        el.style.top = '0';
+                        el.style.bottom = 'auto';
+                        el.innerHTML = `<span class="key-label">${k.name}</span>`;
+                        el.addEventListener('mousedown', () => triggerNote(k.id));
+                        el.addEventListener('touchstart', (e) => { e.preventDefault(); triggerNote(k.id); });
+                        pianoKeysEl.appendChild(el);
+                    }
+                });
+            }, 80);
+        }
+
+        function updateFingerMap() {
+            fingerMapEl.innerHTML = '';
+            const keys = buildKeyList(octave);
+            const whiteKeys = keys.filter(k => !k.name.includes('#'));
+            const FINGER_NAMES = ['L.Pinky', 'L.Ring', 'L.Middle', 'L.Index', 'L.Thumb', 'R.Thumb', 'R.Index', 'R.Middle', 'R.Ring', 'R.Pinky'];
+            FINGER_NAMES.forEach((fn, i) => {
+                const k = whiteKeys[i % whiteKeys.length];
+                const col = document.createElement('div');
+                col.className = 'col-6';
+                col.innerHTML = `<div style="background:rgba(124,77,255,0.07);border-radius:10px;padding:6px 10px;font-size:0.72rem;font-family:'Space Mono',monospace;">
+      <span style="color:var(--violet);font-weight:700;">${fn}</span>
+      <span style="color:var(--text-mid);float:right;">${k ? k.id : '–'}</span>
+    </div>`;
+                fingerMapEl.appendChild(col);
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        //  AUDIO ENGINE
+        // ═══════════════════════════════════════════════════════════
+        function getAudioCtx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        function noteToFreq(note, oct) {
+            const idx = NOTE_NAMES.indexOf(note);
+            const semitones = (oct - 4) * 12 + idx - 9; // A4=440
+            return 440 * Math.pow(2, semitones / 12);
+        }
+
+        const activeOscillators = {};
+
+        function triggerNote(noteId) {
+            const ctx = getAudioCtx();
+            const noteName = noteId.replace(/\d/g, '');
+            const noteOct = parseInt(noteId.replace(/[^0-9]/g, ''));
+            const freq = noteToFreq(noteName, noteOct);
+
+            if (activeOscillators[noteId]) return; // already playing
+
+            const gainNode = ctx.createGain();
+            gainNode.connect(ctx.destination);
+            gainNode.gain.setValueAtTime(0, ctx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(volume * 0.4, ctx.currentTime + 0.005);
+
+            if (soundType === 'piano') {
+                // Piano-like: multiple oscillators + decay
+                const oscs = [];
+                [[1, 1], [2, 0.4], [3, 0.2], [4, 0.1]].forEach(([mult, amp]) => {
+                    const osc = ctx.createOscillator();
+                    const g = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq * mult;
+                    g.gain.setValueAtTime(amp * volume * 0.35, ctx.currentTime);
+                    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (sustainMode ? 3 : 1.2));
+                    osc.connect(g); g.connect(ctx.destination);
+                    osc.start(); osc.stop(ctx.currentTime + (sustainMode ? 3 : 1.2));
+                    oscs.push(osc);
+                });
+                activeOscillators[noteId] = { type: 'piano', oscs, timeout: setTimeout(() => { delete activeOscillators[noteId]; releaseKey(noteId); }, sustainMode ? 3000 : 1200) };
+            } else if (soundType === 'bell') {
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gainNode.gain.setValueAtTime(volume * 0.5, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+                osc.connect(gainNode);
+                osc.start(); osc.stop(ctx.currentTime + 2.5);
+                activeOscillators[noteId] = { type: 'bell', timeout: setTimeout(() => { delete activeOscillators[noteId]; releaseKey(noteId); }, 2500) };
+            } else {
+                // Synth
+                const osc = ctx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.value = freq;
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass'; filter.frequency.value = 1200;
+                gainNode.gain.setValueAtTime(volume * 0.25, ctx.currentTime);
+                if (!sustainMode) gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+                osc.connect(filter); filter.connect(gainNode);
+                osc.start();
+                if (!sustainMode) osc.stop(ctx.currentTime + 0.8);
+                activeOscillators[noteId] = { type: 'synth', osc, gain: gainNode, timeout: sustainMode ? null : setTimeout(() => { delete activeOscillators[noteId]; releaseKey(noteId); }, 800) };
+            }
+
+            activateKey(noteId);
+        }
+
+        function releaseNoteIfSustain(noteId) {
+            if (!sustainMode && activeOscillators[noteId]) {
+                // already auto-released
+            }
+        }
+
+        function activateKey(noteId) {
+            const el = document.getElementById('key_' + noteId);
+            if (el) el.classList.add('active');
+            const noteDisplay = document.getElementById('currentNoteLabel');
+            if (noteDisplay) noteDisplay.textContent = noteId;
+        }
+        function releaseKey(noteId) {
+            const el = document.getElementById('key_' + noteId);
+            if (el) el.classList.remove('active');
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        //  CONTROLS
+        // ═══════════════════════════════════════════════════════════
+        function changeOctave(d) {
+            octave = Math.max(2, Math.min(6, octave + d));
+            document.getElementById('octaveDisplay').textContent = octave;
+            renderPiano();
+            updateFingerMap();
+        }
+        function setVolume(v) { volume = parseFloat(v); }
+        function toggleSustain() {
+            sustainMode = !sustainMode;
+            const btn = document.getElementById('sustainBtn');
+            btn.textContent = sustainMode ? 'Sustain ON' : 'Sustain OFF';
+            btn.classList.toggle('active', sustainMode);
+        }
+        const soundTypes = ['piano', 'bell', 'synth'];
+        const soundLabels = ['🎹 Piano', '🔔 Bell', '🎸 Synth'];
+        function cycleSoundType() {
+            const idx = soundTypes.indexOf(soundType);
+            soundType = soundTypes[(idx + 1) % soundTypes.length];
+            document.getElementById('soundBtn').textContent = soundLabels[(idx + 1) % soundTypes.length];
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        //  CAMERA + MEDIAPIPE
+        // ═══════════════════════════════════════════════════════════
+        const videoEl = document.getElementById('videoEl');
+        const canvas = document.getElementById('overlayCanvas');
+        const ctx2d = canvas.getContext('2d');
+
+        let handsModel = null;
+        let cameraStream = null;
+        let lastFPS = 0, frameCount = 0, fpsTimer = Date.now();
+
+        // Finger tip landmark indices in MediaPipe Hands
+        const FINGER_TIP_IDS = [4, 8, 12, 16, 20]; // thumb, index, middle, ring, pinky
+        const FINGER_DIP_IDS = [3, 7, 11, 15, 19];
+
+        // Track which notes are currently "playing" from air detection
+        const airPlayingNotes = new Set();
+        // Track finger positions across frames for tap detection
+        const fingerHistory = {};
+
+        async function startCamera() {
+            try {
+                document.getElementById('statusText').textContent = 'Requesting camera…';
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
+                });
+                cameraStream = stream;
+                videoEl.srcObject = stream;
+                await videoEl.play();
+
+                document.getElementById('splash').style.display = 'none';
+                document.getElementById('statusDot').classList.add('active');
+                document.getElementById('statusText').textContent = 'Camera active — Loading hand tracking…';
+
+                setupMediaPipe();
+            } catch (e) {
+                document.getElementById('statusText').textContent = 'Camera error: ' + e.message;
+                // Fallback: try environment-facing camera (phone back)
+                try {
+                    const stream2 = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment' }
+                    });
+                    cameraStream = stream2;
+                    videoEl.srcObject = stream2;
+                    await videoEl.play();
+                    document.getElementById('splash').style.display = 'none';
+                    document.getElementById('statusDot').classList.add('active');
+                    document.getElementById('statusText').textContent = 'Back camera active — Loading hand tracking…';
+                    setupMediaPipe();
+                } catch (e2) {
+                    document.getElementById('statusText').textContent = '❌ Camera access denied. Check browser permissions or use phone (see guide).';
+                }
+            }
+        }
+
+        function setupMediaPipe() {
+            handsModel = new Hands({
+                locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+            });
+            handsModel.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.6,
+                minTrackingConfidence: 0.5
+            });
+            handsModel.onResults(onHandResults);
+
+            // Process video frames
+            videoEl.addEventListener('loadeddata', () => {
+                canvas.width = videoEl.videoWidth || 640;
+                canvas.height = videoEl.videoHeight || 480;
+                processFrame();
+            });
+        }
+
+        let processingFrame = false;
+        async function processFrame() {
+            if (!handsModel || !videoEl || videoEl.readyState < 2) {
+                requestAnimationFrame(processFrame);
+                return;
+            }
+            if (!processingFrame) {
+                processingFrame = true;
+                await handsModel.send({ image: videoEl });
+                processingFrame = false;
+            }
+            // FPS counter
+            frameCount++;
+            const now = Date.now();
+            if (now - fpsTimer > 1000) {
+                lastFPS = frameCount;
+                frameCount = 0;
+                fpsTimer = now;
+                document.getElementById('fpsLabel').textContent = lastFPS + ' FPS';
+            }
+            requestAnimationFrame(processFrame);
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        //  HAND RESULTS → PIANO TRIGGER
+        // ═══════════════════════════════════════════════════════════
+        const COLORS = ['#7c4dff', '#ff7043', '#26c6da', '#ffd54f', '#66bb6a'];
+        const FINGER_NAMES_HAND = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky'];
+
+        function onHandResults(results) {
+            canvas.width = videoEl.videoWidth || 640;
+            canvas.height = videoEl.videoHeight || 480;
+            ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+
+            const hands = results.multiHandLandmarks || [];
+            const handedness = results.multiHandedness || [];
+
+            // Update status
+            const dot = document.getElementById('statusDot');
+            const statusTxt = document.getElementById('statusText');
+            const handCountLabel = document.getElementById('handCountLabel');
+            const fingerBadges = document.getElementById('fingerBadges');
+
+            if (hands.length > 0) {
+                dot.classList.remove('active');
+                dot.classList.add('detecting');
+                statusTxt.textContent = `${hands.length} hand${hands.length > 1 ? 's' : ''} detected`;
+                handCountLabel.textContent = `${hands.length} hand${hands.length > 1 ? 's' : ''} in view`;
+            } else {
+                dot.classList.remove('detecting');
+                dot.classList.add('active');
+                statusTxt.textContent = 'Camera active — waiting for hands…';
+                handCountLabel.textContent = 'No hands detected';
+                fingerBadges.innerHTML = '';
+                // Release all air notes
+                airPlayingNotes.forEach(n => { releaseKey(n); });
+                airPlayingNotes.clear();
+                return;
+            }
+
+            const keys = buildKeyList(octave);
+            const whiteKeys = keys.filter(k => !k.name.includes('#'));
+            const allTips = [];
+            const badgeTexts = [];
+
+            hands.forEach((landmarks, hi) => {
+                const hLabel = handedness[hi]?.label || 'Hand';
+
+                // Draw skeleton
+                drawHandSkeleton(landmarks, COLORS[hi % COLORS.length]);
+
+                // Process each finger tip
+                FINGER_TIP_IDS.forEach((tipId, fi) => {
+                    const tip = landmarks[tipId];
+                    const dip = landmarks[FINGER_DIP_IDS[fi]];
+
+                    const x = tip.x; // 0-1 normalized (already mirrored by canvas transform)
+                    const y = tip.y;
+                    const dipY = dip.y;
+
+                    // Determine which key this finger maps to by X position
+                    const keyIdx = Math.floor(x * whiteKeys.length);
+                    const safeIdx = Math.max(0, Math.min(whiteKeys.length - 1, keyIdx));
+                    const mappedKey = whiteKeys[safeIdx];
+
+                    // Tap detection: finger tip is below DIP joint = finger pressing down
+                    const isTapping = (y - dipY) > 0.015; // tip lower than DIP = pressing down
+
+                    const noteId = mappedKey.id;
+                    const tipKey = `h${hi}_f${fi}`;
+
+                    allTips.push({ x, y, noteId, isTapping, color: COLORS[fi % COLORS.length], hLabel, fi });
+
+                    if (isTapping) {
+                        if (!airPlayingNotes.has(tipKey)) {
+                            airPlayingNotes.add(tipKey);
+                            triggerNote(noteId);
+                            badgeTexts.push(`${hLabel[0]}.${FINGER_NAMES_HAND[fi][0]} → ${noteId}`);
+                        }
+                    } else {
+                        if (airPlayingNotes.has(tipKey)) {
+                            airPlayingNotes.delete(tipKey);
+                            releaseKey(noteId);
+                        }
+                    }
+
+                    // Draw fingertip circle
+                    const px = (1 - x) * canvas.width; // mirror for display (video is CSS-mirrored)
+                    const py = y * canvas.height;
+                    ctx2d.beginPath();
+                    ctx2d.arc(px, py, isTapping ? 18 : 12, 0, Math.PI * 2);
+                    ctx2d.fillStyle = isTapping ? `${COLORS[fi]}cc` : `${COLORS[fi]}55`;
+                    ctx2d.fill();
+                    ctx2d.strokeStyle = COLORS[fi];
+                    ctx2d.lineWidth = isTapping ? 3 : 2;
+                    ctx2d.stroke();
+
+                    // Note label
+                    ctx2d.fillStyle = isTapping ? '#fff' : COLORS[fi];
+                    ctx2d.font = `bold ${isTapping ? 13 : 10}px Space Mono, monospace`;
+                    ctx2d.textAlign = 'center';
+                    ctx2d.fillText(noteId, px, py + 4);
+                });
+            });
+
+            // Update finger badges
+            const activeBadges = [...airPlayingNotes];
+            fingerBadges.innerHTML = activeBadges.slice(0, 6).map(n => `<span class="badge-finger">${n.replace('h', 'H').replace('_f', 'F')}</span>`).join('');
+        }
+
+        function drawHandSkeleton(landmarks, color) {
+            const connections = [
+                [0, 1], [1, 2], [2, 3], [3, 4],
+                [0, 5], [5, 6], [6, 7], [7, 8],
+                [0, 9], [9, 10], [10, 11], [11, 12],
+                [0, 13], [13, 14], [14, 15], [15, 16],
+                [0, 17], [17, 18], [18, 19], [19, 20],
+                [5, 9], [9, 13], [13, 17]
+            ];
+            ctx2d.strokeStyle = color + '88';
+            ctx2d.lineWidth = 2;
+            connections.forEach(([a, b]) => {
+                const la = landmarks[a], lb = landmarks[b];
+                ctx2d.beginPath();
+                ctx2d.moveTo((1 - la.x) * canvas.width, la.y * canvas.height);
+                ctx2d.lineTo((1 - lb.x) * canvas.width, lb.y * canvas.height);
+                ctx2d.stroke();
+            });
+            // Draw joints
+            landmarks.forEach(lm => {
+                ctx2d.beginPath();
+                ctx2d.arc((1 - lm.x) * canvas.width, lm.y * canvas.height, 3, 0, Math.PI * 2);
+                ctx2d.fillStyle = color + 'aa';
+                ctx2d.fill();
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        //  INIT
+        // ═══════════════════════════════════════════════════════════
+        renderPiano();
+        updateFingerMap();
+    </script>
+</body>
+
+</html>
