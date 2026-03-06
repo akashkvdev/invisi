@@ -641,9 +641,8 @@
                             <div id="splash">
                                 <div class="splash-icon">🎹</div>
                                 <div class="splash-title">InvisiKeys Air Piano</div>
-                                <div class="splash-text">Allow camera access to detect your fingers and play notes in
-                                    the air above any surface.</div>
-                                <button class="btn-start" onclick="startCamera()">📷 Enable Camera</button>
+                                <div class="splash-text">Camera allow karo aur ungliyon se hawa mein piano bajao!</div>
+                                <button class="btn-start" onclick="startCamera()">📷 Camera Enable Karo</button>
                             </div>
                         </div>
                         <div class="status-bar">
@@ -999,6 +998,8 @@
         // Track finger positions across frames for tap detection
         const fingerHistory = {};
 
+
+
         async function startCamera() {
             try {
                 document.getElementById('statusText').textContent = 'Requesting camera…';
@@ -1035,19 +1036,25 @@
         }
 
         function setupMediaPipe() {
+            document.getElementById('statusText').textContent = '⏳ Loading hand tracking model… please wait 5-10 sec';
             handsModel = new Hands({
                 locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
             });
             handsModel.setOptions({
                 maxNumHands: 2,
-                modelComplexity: 1,
-                minDetectionConfidence: 0.6,
-                minTrackingConfidence: 0.5
+                modelComplexity: 0,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.4
             });
             handsModel.onResults(onHandResults);
 
-            // Process video frames
-            videoEl.addEventListener('loadeddata', () => {
+            handsModel.initialize().then(() => {
+                document.getElementById('statusText').textContent = '✅ Model ready — show your hand to camera!';
+                canvas.width = videoEl.videoWidth || 640;
+                canvas.height = videoEl.videoHeight || 480;
+                processFrame();
+            }).catch(() => {
+                document.getElementById('statusText').textContent = '✅ Ready — show your hand!';
                 canvas.width = videoEl.videoWidth || 640;
                 canvas.height = videoEl.videoHeight || 480;
                 processFrame();
